@@ -18,18 +18,18 @@ def create_tuning_job() -> str:
     import time
 
     from google import genai
-    from google.genai.types import HttpOptions, CreateTuningJobConfig, TuningDataset
+    from google.genai.types import HttpOptions, CreateTuningJobConfig, TuningDataset, EvaluationConfig, OutputConfig, GcsDestination
 
     # TODO(developer): Update and un-comment below line
     # USER_GCS_FOLDER = "your-gcs-folder"
 
-    client = genai.Client(http_options=HttpOptions(api_version="v1"))
+    client = genai.Client(http_options=HttpOptions(api_version="v1beta1"))
 
     training_dataset = TuningDataset(
         gcs_uri="gs://cloud-samples-data/ai-platform/generative_ai/gemini/text/sft_train_data.jsonl",
     )
-    training_dataset = ValidationDataset(
-        gcs_uri="gs://cloud-samples-data/ai-platform/generative_ai/gemini/text/sft_val_data.jsonl",
+    validation_dataset = TuningDataset(
+        gcs_uri="gs://cloud-samples-data/ai-platform/generative_ai/gemini/text/sft_validation_data.jsonl",
     )
 
     evaluation_config=EvaluationConfig(
