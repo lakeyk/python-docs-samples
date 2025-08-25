@@ -20,17 +20,40 @@ def create_tuning_job() -> str:
     from google import genai
     from google.genai.types import HttpOptions, CreateTuningJobConfig, TuningDataset
 
+    # TODO(developer): Update and un-comment below line
+    # USER_GCS_FOLDER = "your-gcs-folder"
+
     client = genai.Client(http_options=HttpOptions(api_version="v1"))
 
     training_dataset = TuningDataset(
         gcs_uri="gs://cloud-samples-data/ai-platform/generative_ai/gemini/text/sft_train_data.jsonl",
     )
+    training_dataset = ValidationDataset(
+        gcs_uri="gs://cloud-samples-data/ai-platform/generative_ai/gemini/text/sft_val_data.jsonl",
+    )
+
+    evaluation_config=EvaluationConfig(
+        metrics=[
+           Metric(
+                name="FLUENCY",
+                prompt_template="""Evaluate this {response}"""
+            )
+        ],
+        output_config=OutputConfig(
+            gcs_destination=GcsDestination(
+                output_uri_prefix=USER_GCS_FOLDER,
+            )
+        ),
+    )
+
 
     tuning_job = client.tunings.tune(
         base_model="gemini-2.5-flash",
         training_dataset=training_dataset,
         config=CreateTuningJobConfig(
             tuned_model_display_name="Example tuning job",
+            validation_dataset=validation_dataset,
+            evaluation_config=evaluation_config,
         ),
     )
 
